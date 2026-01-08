@@ -1,0 +1,13 @@
+{
+  "plugins": ["prettier-plugin-css-order", "prettier-plugin-tailwindcss"],
+  "printWidth": 80,
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "bracketSameLine": false,
+  "arrowParens": "always",
+  "proseWrap": "never",
+  "endOfLine": "auto",
+  "cssDeclarationSorterOrder": "alphabetical",
+  "cssDeclarationSorterKeepOverrides": false
+}
