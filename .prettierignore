@@ -1,0 +1,16 @@
+dist
+node_modules
+package-lock.json
+src/stories
+config/jetbrains-live-templates
+.gitignore
+.npmrc
+.prettierignore
+*.avif
+*.conf
+*.md
+*.png
+*.shims.d.ts
+*.svg
+*.ttf
+*.xml
