@@ -104,4 +104,5 @@ export {
   type ColDefMeta,
   type ColGroupDefMeta,
   type FieldReference,
+  type FilterType,
 }
