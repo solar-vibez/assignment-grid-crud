@@ -22,16 +22,20 @@
   },
   "dependencies": {
     "@ag-grid-community/locale": "^35.0.0",
+    "@ant-design/icons": "^6.1.0",
     "@eslint-react/eslint-plugin": "^2.3.13",
     "@eslint/compat": "^2.0.0",
     "@stylistic/eslint-plugin": "^5.6.1",
+    "@tailwindcss/vite": "^4.1.18",
     "@typescript-eslint/parser": "^8.49.0",
     "@vitest/eslint-plugin": "^1.5.2",
     "ag-grid-enterprise": "34.3.1",
     "ag-grid-react": "34.3.1",
-    "antd": "^6.1.0",
+    "antd": "^6.1.4",
+    "jotai": "^2.1.2",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
