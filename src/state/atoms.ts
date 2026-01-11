@@ -14,8 +14,8 @@ export const columnDefsAtom = atom(async () => getColumnDefs())
 export const rowsAtom = atom(async () => getRows())
 
 type GridData = {
-  rows: RowDataType[]
   columnDefs: ApiColDef[]
+  rows: RowDataType[]
 }
 /**
  * Atom that loads data in parallel and saves it into state
@@ -25,9 +25,10 @@ export const dataAtom = atom<Promise<GridData>>(async (get) => {
     get(columnDefsAtom),
     get(rowsAtom),
   ])
+
   return {
-    rows,
     columnDefs,
+    rows,
   }
 })
 

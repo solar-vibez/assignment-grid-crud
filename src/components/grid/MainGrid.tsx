@@ -1,10 +1,12 @@
-import type { ColDef } from 'ag-grid-enterprise'
+import type { CellValueChangedEvent, ColDef } from 'ag-grid-enterprise'
 
 import { AgGridReact } from 'ag-grid-react'
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 import type { RowDataType } from '../../api/endpoints/rows/types/rowData.types.ts'
 
+import { update } from '../../api/endpoints/rows/update.ts'
+import { useGlobalMessage } from '../notifications/useGlobalMessage.ts'
 import { agGridBaseTheme } from './aggrid.ts'
 
 type Props = {
@@ -17,6 +19,25 @@ type Props = {
  */
 const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
   const gridRef = useRef<AgGridReact<RowDataType>>(null)
+  const showMessage = useGlobalMessage()
+
+  const onCellValueChanged = useCallback(
+    async (event: CellValueChangedEvent<RowDataType>) => {
+      // temp solution to avoid double handling on error
+      if (event.source === 'edit') {
+        try {
+          await update(event.data)
+        } catch (error) {
+          showMessage.error({
+            content: (error as Error).message,
+          })
+
+          gridRef.current?.api.undoCellEditing()
+        }
+      }
+    },
+    [showMessage],
+  )
 
   return (
     <AgGridReact<RowDataType>
@@ -30,6 +51,7 @@ const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
       enableBrowserTooltips={true}
       enableFilterHandlers={true}
       gridId={'main-grid'}
+      onCellValueChanged={onCellValueChanged}
       ref={gridRef}
       rowData={rowData}
       rowDragEntireRow={false}

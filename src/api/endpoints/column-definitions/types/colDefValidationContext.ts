@@ -207,4 +207,8 @@ type ColDefValidationContextUnion =
  */
 type CurrencyRateListSupplier = 'COMPONENT' | 'DOCUMENT'
 
-export { type ColDefValidationContextUnion }
+export {
+  type ColDefDoubleValidationContext,
+  type ColDefStringValidationContext,
+  type ColDefValidationContextUnion,
+}

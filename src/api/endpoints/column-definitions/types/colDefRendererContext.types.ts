@@ -121,4 +121,8 @@ type ColDefRendererContextUnion =
  */
 type IndexKeyDisplayType = 'DESCRIPTION' | 'NAME' | 'NAME_DESCRIPTION'
 
-export { type ColDefRendererContextUnion, type ColDefEnumDisplayMode }
+export {
+  type ColDefEnumDisplayMode,
+  type ColDefEnumRendererContext,
+  type ColDefRendererContextUnion,
+}
