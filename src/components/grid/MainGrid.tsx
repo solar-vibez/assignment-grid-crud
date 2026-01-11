@@ -1,6 +1,7 @@
 import type {
   CellValueChangedEvent,
   ColDef,
+  GetRowIdParams,
   RowSelectedEvent,
 } from 'ag-grid-enterprise'
 
@@ -11,7 +12,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import type { RowDataType } from '../../api/endpoints/rows/types/rowData.types.ts'
 
 import { update } from '../../api/endpoints/rows/update.ts'
-import { gridRefAtom, selectedRowIdsAtom } from '../../state/atoms.ts'
+import { gridRefAtom, selectedRowsAtom } from '../../state/atoms.ts'
 import { useGlobalMessage } from '../notifications/useGlobalMessage.ts'
 import { agGridBaseTheme } from './aggrid.ts'
 
@@ -26,7 +27,7 @@ type Props = {
 const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
   const gridRef = useRef<AgGridReact<RowDataType>>(null)
   const setGridRef = useSetAtom(gridRefAtom)
-  const setSelectedRowIds = useSetAtom(selectedRowIdsAtom)
+  const setSelectedRows = useSetAtom(selectedRowsAtom)
   const showMessage = useGlobalMessage()
 
   // Expose gridRef to atoms for use by other components
@@ -42,6 +43,7 @@ const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
       if (event.source === 'edit') {
         try {
           await update(event.data)
+          setSelectedRows([event.data])
           showMessage.success({
             content: 'Row updated successfully',
           })
@@ -54,16 +56,19 @@ const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
         }
       }
     },
-    [showMessage],
+    [showMessage, setSelectedRows],
   )
 
   const onRowSelected = useCallback(
     (_event: RowSelectedEvent<RowDataType>) => {
       const selectedRows = gridRef.current?.api.getSelectedRows() ?? []
-      const selectedIds = new Set(selectedRows.map((row) => row.id))
-      setSelectedRowIds(selectedIds)
+      setSelectedRows(selectedRows)
     },
-    [setSelectedRowIds],
+    [setSelectedRows],
+  )
+  const getRowId = useCallback(
+    (params: GetRowIdParams<RowDataType>) => String(params.data.id),
+    [],
   )
 
   return (
@@ -77,6 +82,7 @@ const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
       columnDefs={columnDefs}
       enableBrowserTooltips={true}
       enableFilterHandlers={true}
+      getRowId={getRowId}
       gridId={'main-grid'}
       onCellValueChanged={onCellValueChanged}
       onRowSelected={onRowSelected}
