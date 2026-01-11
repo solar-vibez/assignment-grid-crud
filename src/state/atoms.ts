@@ -39,10 +39,23 @@ export const loadableDataAtom = loadable(
 )
 
 /**
- * Atom to manage selected row IDs (Jotai)
+ * Atom to manage selected rows
  */
-export const selectedRowIdsAtom = atom<Set<number>>(new Set<number>())
+export const selectedRowsAtom = atom<RowDataType[]>([])
 
+export const selectedRowAtom = atom((get) => {
+  const selectedRows = get(selectedRowsAtom)
+
+  if (selectedRows.length === 1) {
+    return selectedRows[0]
+  }
+
+  return null
+})
+
+export const selectedDescriptionAtom = atom((get) => {
+  return get(selectedRowAtom)?.description ?? ''
+})
 /**
  * Atom to hold AG Grid reference (the AgGridReact instance) so other components can use the grid API
  */
