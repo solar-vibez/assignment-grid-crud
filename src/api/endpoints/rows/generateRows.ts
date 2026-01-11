@@ -2,19 +2,14 @@ import { faker } from '@faker-js/faker'
 
 import type { RowDataType } from './types/rowData.types'
 
+import { COLORS_ENUM_VALUES } from '../../../constants.ts'
+
 /**
  * Generates an array of mock row data.
  */
 const generateRowsMock = (count: number): RowDataType[] =>
   Array.from({ length: count }, (_, i) => {
-    const colorFlag = faker.helpers.arrayElement([
-      { text: 'Blue', value: 'FLAG_BLUE' },
-      { text: 'Green', value: 'FLAG_GREEN' },
-      { text: 'Orange', value: 'FLAG_ORANGE' },
-      { text: 'Purple', value: 'FLAG_PURPLE' },
-      { text: 'Red', value: 'FLAG_RED' },
-      { text: 'Yellow', value: 'FLAG_YELLOW' },
-    ])
+    const colorFlag = faker.helpers.arrayElement(COLORS_ENUM_VALUES)
 
     return {
       colorFlag: colorFlag,

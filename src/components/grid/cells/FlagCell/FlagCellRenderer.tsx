@@ -2,11 +2,12 @@ import type { ICellRendererParams } from 'ag-grid-community'
 
 import { FlagOutlined } from '@ant-design/icons'
 import { Space, Typography } from 'antd'
+
+import type { ColDefEnumDisplayMode } from '../../../../api/endpoints/column-definitions/types/colDefRendererContext.types.ts'
 import type {
   ColorFlag,
   RowDataType,
 } from '../../../../api/endpoints/rows/types/rowData.types.ts'
-import type { ColDefEnumDisplayMode } from '../../../../api/endpoints/column-definitions/types/colDefRendererContext.types.ts'
 
 const { Text } = Typography
 
@@ -27,25 +28,25 @@ const COLOR_MAP: Record<string, string> = {
  * - TEXT: Shows only the text label (uncolored)
  */
 const FlagCellRenderer = ({
+  displayMode,
+  showNullAs,
   value,
-  colDef,
-}: Readonly<ICellRendererParams<RowDataType, ColorFlag>>) => {
+}: Readonly<
+  ICellRendererParams<RowDataType, ColorFlag> & {
+    displayMode: ColDefEnumDisplayMode
+    showNullAs: string
+  }
+>) => {
   if (!value) {
-    return null
+    return showNullAs.length > 0 ? <Text>{showNullAs}</Text> : null
   }
 
   const color = COLOR_MAP[value.value] ?? '#d9d9d9'
-  const displayMode: ColDefEnumDisplayMode =
-    colDef?.context?.rendererContext?.displayMode ?? 'ICON_AND_TEXT'
-  const nullPlaceholder = colDef?.context?.rendererContext?.showNullAs ?? ''
 
   return (
     <Space align="center">
-      {!value && nullPlaceholder} {<Text>{nullPlaceholder}</Text>}
-      {value && displayMode.includes('ICON') && (
-        <FlagOutlined style={{ color }} />
-      )}
-      {value && displayMode.includes('TEXT') && <Text>{value.text}</Text>}
+      {displayMode.includes('ICON') && <FlagOutlined style={{ color }} />}
+      {displayMode.includes('TEXT') && <Text>{value.text}</Text>}
     </Space>
   )
 }

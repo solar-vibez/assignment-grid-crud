@@ -2,12 +2,10 @@ import type { ColDef } from 'ag-grid-enterprise'
 
 import type { ApiColDef } from '../../api/endpoints/column-definitions/types/colDef.types.ts'
 import type { ColDefMeta } from '../../api/endpoints/column-definitions/types/colDefMeta.types.ts'
-import type {
-  ColorFlag,
-  RowDataType,
-} from '../../api/endpoints/rows/types/rowData.types.ts'
+import type { RowDataType } from '../../api/endpoints/rows/types/rowData.types.ts'
 
-import { FlagCellRenderer } from '../../components/grid/cells/FlagCell/FlagCellRenderer.tsx'
+import { getAdditionalColumnProps } from './getAdditionalColumnProps.ts'
+import { getEditableProps } from './getEditableProps.ts'
 
 /**
  * Gets filter name for simple columns based on `filterType` from API
@@ -35,56 +33,6 @@ const getAGFilter = (
 }
 
 /**
- * Gets custom props for column definition based on `dataType`
- * @param apiColDef {ApiColDef} column definition from API
- * @returns partial column definition config
- */
-const getColumnProps = (apiColDef: ApiColDef): ColDef<RowDataType> => {
-  const dataType = apiColDef.context.dataType // ???
-
-  // `.includes` to cover CUSTOM_FIELD_BOOLEAN etc.
-  if (dataType.includes('BOOLEAN')) {
-    return {
-      // we can define it here or move to class
-      cellStyle: {
-        display: 'flex',
-        justifyContent: 'center',
-      },
-    }
-  }
-
-  if (dataType.includes('PERCENTAGE') || dataType.includes('DOUBLE')) {
-    return {
-      type: 'rightAligned',
-      valueFormatter: ({ value }: { value: null | number | undefined }) => {
-        if (typeof value !== 'number' || Number.isNaN(value)) {
-          return ''
-        }
-
-        const showPercent = dataType.includes('PERCENTAGE')
-
-        return `${value.toFixed(2)}${showPercent ? '%' : ''}`
-      },
-    }
-  }
-
-  if (dataType === 'COLOR_FLAG') {
-    const field = apiColDef.field as keyof RowDataType
-    return {
-      cellRenderer: FlagCellRenderer,
-      context: {
-        rendererContext: apiColDef.context.rendererContext,
-      },
-      filterValueGetter: (params) => (params.data?.[field] as ColorFlag)?.text,
-      valueGetter: (params) => params.data?.[field] as ColorFlag,
-      sortable: false, // it's a bit unclear how to correctly sort
-    }
-  }
-
-  return {}
-}
-
-/**
  * Map API column definitions into AG Grid ColDef objects.
  * @param apiDefs {ApiColDef[]} column definitions from API
  * @returns {ColDef<RowDataType>[]} data structure needed for AG Grid to define columns
@@ -93,15 +41,18 @@ const getColumnProps = (apiColDef: ApiColDef): ColDef<RowDataType> => {
  * @see RowDataType
  */
 const mapApiToAgColDefs = (apiDefs: ApiColDef[]): ColDef<RowDataType>[] =>
-  apiDefs.map((d) => ({
-    colId: d.colId,
-    field: d.field as keyof RowDataType,
-    filter: getAGFilter(d.context.filterType) ?? true,
-    headerName: d.headerName,
-    headerTooltip: d.headerTooltip,
-    hide: d.initialHide,
-    sortable: true,
-    ...getColumnProps(d),
-  }))
+  apiDefs.map(
+    ({ colId, context, field, headerName, headerTooltip, initialHide }) => ({
+      colId,
+      field: field as keyof RowDataType,
+      filter: getAGFilter(context.filterType) ?? true,
+      headerName,
+      headerTooltip,
+      hide: initialHide,
+      sortable: true,
+      ...getAdditionalColumnProps(context, field as keyof RowDataType),
+      ...getEditableProps(context),
+    }),
+  )
 
 export { mapApiToAgColDefs }
