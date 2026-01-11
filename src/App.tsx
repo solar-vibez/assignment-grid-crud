@@ -1,9 +1,10 @@
-import { Alert, ConfigProvider, Flex, Spin } from 'antd'
+import { Alert, ConfigProvider, Flex, Spin, Splitter } from 'antd'
 
 import './App.css'
 import { useAtomValue } from 'jotai'
 import { Suspense } from 'react'
 
+import { Details } from './components/details/Details.tsx'
 import { MainGrid } from './components/grid/MainGrid.tsx'
 import { RowActionsToolbar } from './components/grid/RowActionsToolbar.tsx'
 import { LayoutComponent } from './components/layout/LayoutComponent.tsx'
@@ -43,8 +44,15 @@ const AppContent = () => {
 
   return (
     <Flex className="h-full" vertical>
-      <RowActionsToolbar />
-      <MainGrid columnDefs={columnDefs} rowData={rows} />
+      <Splitter vertical>
+        <Splitter.Panel>
+          <RowActionsToolbar />
+          <MainGrid columnDefs={columnDefs} rowData={rows} />
+        </Splitter.Panel>
+        <Splitter.Panel className="my-4" defaultSize={100}>
+          <Details />
+        </Splitter.Panel>
+      </Splitter>
     </Flex>
   )
 }

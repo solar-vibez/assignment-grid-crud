@@ -9,7 +9,7 @@ import type { RowDataType } from '../../api/endpoints/rows/types/rowData.types.t
 import { add } from '../../api/endpoints/rows/add.ts'
 import { deleteRow } from '../../api/endpoints/rows/delete.ts'
 import { COLORS_ENUM_VALUES } from '../../constants.ts'
-import { gridRefAtom, selectedRowIdsAtom } from '../../state/atoms.ts'
+import { gridRefAtom, selectedRowsAtom } from '../../state/atoms.ts'
 import { useGlobalMessage } from '../notifications/useGlobalMessage.ts'
 
 /**
@@ -18,7 +18,7 @@ import { useGlobalMessage } from '../notifications/useGlobalMessage.ts'
  */
 const RowActionsToolbar = () => {
   const gridRef = useAtomValue(gridRefAtom)
-  const selectedRowIds = useAtomValue(selectedRowIdsAtom)
+  const selectedRows = useAtomValue(selectedRowsAtom)
   const showMessage = useGlobalMessage()
 
   const handleAddRow = useCallback(async () => {
@@ -85,7 +85,7 @@ const RowActionsToolbar = () => {
       return
     }
 
-    if (selectedRowIds.size === 0) {
+    if (selectedRows.length === 0) {
       showMessage.warning({
         content: 'Please select at least one row to delete',
       })
@@ -98,8 +98,8 @@ const RowActionsToolbar = () => {
       const selectedRows = gridRef.api.getSelectedRows()
 
       // Delete from API
-      const rowIds = [...selectedRowIds]
-      await Promise.all(rowIds.map((id) => deleteRow(id)))
+      const rowIds = [...selectedRows]
+      await Promise.all(rowIds.map(({ id }) => deleteRow(id)))
 
       // Use AG Grid transaction to remove the rows
       gridRef.api.applyTransaction({
@@ -115,10 +115,10 @@ const RowActionsToolbar = () => {
         content: (error as Error).message,
       })
     }
-  }, [gridRef, selectedRowIds, showMessage])
+  }, [gridRef, selectedRows, showMessage])
 
   const deleteButtonTitle =
-    selectedRowIds.size > 0 ? `Delete ${selectedRowIds.size} row(s)` : undefined
+    selectedRows.length > 0 ? `Delete ${selectedRows.length} row(s)` : undefined
 
   return (
     <Space className="gap-2 px-4 py-3">
@@ -133,7 +133,7 @@ const RowActionsToolbar = () => {
       <Tooltip title={deleteButtonTitle}>
         <Button
           color="primary"
-          disabled={selectedRowIds.size === 0}
+          disabled={selectedRows.length === 0}
           icon={<DeleteOutlined />}
           onClick={handleDeleteRows}
           variant="text"

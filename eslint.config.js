@@ -43,6 +43,11 @@ export default tseslint.config(
     name: '"default" settings',
     settings: {
       'import/resolver': { typescript: { alwaysTryTypes: true } },
+      // suppress warnings in terminal output due to recent changes in tailwind v4
+      // see https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/431#issuecomment-3513947402
+      tailwindcss: {
+        config: path.join(__dirname, './tailwind.config.js'),
+      },
     },
   },
   js.configs.recommended,
