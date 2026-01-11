@@ -1,16 +1,17 @@
 import { Alert, Flex, Spin } from 'antd'
+
+import './App.css'
 import { useAtomValue } from 'jotai'
 import { Suspense } from 'react'
 
-import './App.css'
-
-import { mapApiToAgColDefs } from './utils/mapper/colDefMapper.ts'
 import { MainGrid } from './components/grid/MainGrid.tsx'
 import { LayoutComponent } from './components/layout/LayoutComponent.tsx'
+import { MessageProvider } from './components/notifications/MessageProvider.tsx'
 import { loadableDataAtom } from './state/atoms'
+import { mapApiToAgColDefs } from './utils/mapper/colDefMapper.ts'
 
 const LoadingSpinner = () => (
-  <Flex align="center" justify="center" className="h-full">
+  <Flex align="center" className="h-full" justify="center">
     <Spin size="large" />
   </Flex>
 )
@@ -42,14 +43,14 @@ const AppContent = () => {
   return <MainGrid columnDefs={columnDefs} rowData={rows} />
 }
 
-const App = () => {
-  return (
+const App = () => (
+  <MessageProvider>
     <LayoutComponent>
       <Suspense fallback={<LoadingSpinner />}>
         <AppContent />
       </Suspense>
     </LayoutComponent>
-  )
-}
+  </MessageProvider>
+)
 
 export { App }
