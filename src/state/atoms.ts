@@ -1,3 +1,5 @@
+import type { AgGridReact } from 'ag-grid-react'
+
 import { atom } from 'jotai'
 import { loadable } from 'jotai/utils'
 
@@ -17,20 +19,31 @@ type GridData = {
   columnDefs: ApiColDef[]
   rows: RowDataType[]
 }
+
 /**
- * Atom that loads data in parallel and saves it into state
+ * Load both column definitions and rows in parallel and expose as a loadable atom
+ * This replaces the previous `dataAtom` to avoid duplicating the rows in multiple atoms.
  */
-export const dataAtom = atom<Promise<GridData>>(async (get) => {
-  const [columnDefs, rows] = await Promise.all([
-    get(columnDefsAtom),
-    get(rowsAtom),
-  ])
+export const loadableDataAtom = loadable(
+  atom(async (get) => {
+    const [columnDefs, rows] = await Promise.all([
+      get(columnDefsAtom),
+      get(rowsAtom),
+    ])
 
-  return {
-    columnDefs,
-    rows,
-  }
-})
+    return {
+      columnDefs,
+      rows,
+    } as GridData
+  }),
+)
 
-// wrap with `loadable` to be able to react to the loading state changes
-export const loadableDataAtom = loadable(dataAtom)
+/**
+ * Atom to manage selected row IDs (Jotai)
+ */
+export const selectedRowIdsAtom = atom<Set<number>>(new Set<number>())
+
+/**
+ * Atom to hold AG Grid reference (the AgGridReact instance) so other components can use the grid API
+ */
+export const gridRefAtom = atom<AgGridReact<RowDataType> | null>(null)

@@ -1,10 +1,11 @@
-import { Alert, Flex, Spin } from 'antd'
+import { Alert, ConfigProvider, Flex, Spin } from 'antd'
 
 import './App.css'
 import { useAtomValue } from 'jotai'
 import { Suspense } from 'react'
 
 import { MainGrid } from './components/grid/MainGrid.tsx'
+import { RowActionsToolbar } from './components/grid/RowActionsToolbar.tsx'
 import { LayoutComponent } from './components/layout/LayoutComponent.tsx'
 import { MessageProvider } from './components/notifications/MessageProvider.tsx'
 import { loadableDataAtom } from './state/atoms'
@@ -40,17 +41,34 @@ const AppContent = () => {
   const { columnDefs: apiColumnDefs, rows } = gridData.data
   const columnDefs = mapApiToAgColDefs(apiColumnDefs)
 
-  return <MainGrid columnDefs={columnDefs} rowData={rows} />
+  return (
+    <Flex className="h-full" vertical>
+      <RowActionsToolbar />
+      <MainGrid columnDefs={columnDefs} rowData={rows} />
+    </Flex>
+  )
 }
 
 const App = () => (
-  <MessageProvider>
-    <LayoutComponent>
-      <Suspense fallback={<LoadingSpinner />}>
-        <AppContent />
-      </Suspense>
-    </LayoutComponent>
-  </MessageProvider>
+  <ConfigProvider
+    theme={{
+      components: {
+        Button: {
+          algorithm: true,
+          // Seed Token
+          colorPrimary: '#012c4f',
+        },
+      },
+    }}
+  >
+    <MessageProvider>
+      <LayoutComponent>
+        <Suspense fallback={<LoadingSpinner />}>
+          <AppContent />
+        </Suspense>
+      </LayoutComponent>
+    </MessageProvider>
+  </ConfigProvider>
 )
 
 export { App }
