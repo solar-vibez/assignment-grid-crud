@@ -230,7 +230,11 @@ const RowActionsToolbar = () => {
         </Button>
       </Tooltip>
       <Text className="ml-4 whitespace-nowrap">Search</Text>
-      <Input onInput={handleQuickSearchChange} value={quickSearch} />
+      <Input
+        onInput={handleQuickSearchChange}
+        placeholder="Search something..."
+        value={quickSearch}
+      />
     </Flex>
   )
 }
