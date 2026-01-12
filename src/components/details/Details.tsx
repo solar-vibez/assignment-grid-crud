@@ -88,9 +88,7 @@ const DetailsEditor = ({ api }: Readonly<DetailsEditorProps>) => {
     [selectedRow, setSelectedRows, api, showMessage],
   )
 
-  return (
-    <TextArea maxLength={255} onChange={handleChange} rows={6} value={value} />
-  )
+  return <TextArea maxLength={255} onChange={handleChange} value={value} />
 }
 
 const Details = () => {

@@ -37,7 +37,7 @@ const LayoutComponent = ({ children }: Readonly<Props>) => {
         />
       </Header>
 
-      <Content style={{ height: '100%' }}>
+      <Content style={{ height: '100%', width: '100%' }}>
         <div
           style={{
             background: colorBgContainer,

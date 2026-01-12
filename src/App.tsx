@@ -44,12 +44,12 @@ const AppContent = () => {
 
   return (
     <Flex className="h-full" vertical>
+      <RowActionsToolbar />
       <Splitter vertical>
         <Splitter.Panel>
-          <RowActionsToolbar />
           <MainGrid columnDefs={columnDefs} rowData={rows} />
         </Splitter.Panel>
-        <Splitter.Panel className="my-4" defaultSize={100}>
+        <Splitter.Panel>
           <Details />
         </Splitter.Panel>
       </Splitter>
