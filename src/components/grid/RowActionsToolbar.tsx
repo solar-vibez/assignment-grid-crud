@@ -1,8 +1,14 @@
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  EllipsisOutlined,
+  PlusOutlined,
+  VerticalAlignTopOutlined,
+} from '@ant-design/icons'
 import { faker } from '@faker-js/faker'
-import { Button, Space, Tooltip } from 'antd'
+import { Button, Dropdown, type MenuProps, Space, Tooltip } from 'antd'
 import { useAtomValue } from 'jotai'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { RowDataType } from '../../api/endpoints/rows/types/rowData.types.ts'
 
@@ -21,14 +27,50 @@ const RowActionsToolbar = () => {
   const selectedRows = useAtomValue(selectedRowsAtom)
   const showMessage = useGlobalMessage()
 
-  const handleAddRow = useCallback(async () => {
-    if (!gridRef?.api) {
-      showMessage.error({ content: 'Grid not initialized' })
+  const addRow = useCallback(
+    async (rowData: RowDataType, pos?: null | number) => {
+      if (!gridRef?.api) {
+        return
+      }
 
-      return
-    }
+      const newRowData = {
+        ...rowData,
+        id: gridRef.api.getDisplayedRowCount() + 1,
+      }
 
-    try {
+      try {
+        // Call API to add row
+        const createdRow = await add(newRowData)
+
+        // Use AG Grid transaction to add the row
+        gridRef.api.applyTransaction({
+          add: [createdRow],
+          addIndex: pos,
+        })
+
+        showMessage.success({
+          content: 'Row added successfully',
+        })
+
+        // scroll to added row
+        gridRef.api.ensureIndexVisible(pos ?? newRowData.id - 1)
+      } catch (error) {
+        showMessage.error({
+          content: (error as Error).message,
+        })
+      }
+    },
+    [gridRef, showMessage],
+  )
+
+  const handleAddRow = useCallback(
+    (pos?: number) => async () => {
+      if (!gridRef?.api) {
+        showMessage.error({ content: 'Grid not initialized' })
+
+        return
+      }
+
       // Generate new row data with default values
       const colorFlag = faker.helpers.arrayElement(COLORS_ENUM_VALUES)
 
@@ -48,35 +90,21 @@ const RowActionsToolbar = () => {
           nonEditableFieldsReason: {},
           notAllowedActions: {},
         },
-        percentage: faker.number.float({ fractionDigits: 2, max: 100, min: 0 }),
+        percentage: faker.number.float({
+          fractionDigits: 2,
+          max: 100,
+          min: 0,
+        }),
         referentialID: `RefID ${faker.number.int({
           max: 10,
           min: 1,
         })} - ${faker.number.int({ max: 99, min: 1 })}`,
         valid: faker.datatype.boolean(),
       }
-      const count = gridRef.api.getDisplayedRowCount()
-
-      // Call API to add row
-      const createdRow = await add(newRowData, count + 1)
-
-      // Use AG Grid transaction to add the row
-      gridRef.api.applyTransaction({
-        add: [createdRow],
-      })
-
-      showMessage.success({
-        content: 'Row added successfully',
-      })
-
-      // scroll to added row
-      gridRef.api.ensureIndexVisible(count)
-    } catch (error) {
-      showMessage.error({
-        content: (error as Error).message,
-      })
-    }
-  }, [gridRef, showMessage])
+      await addRow(newRowData, pos)
+    },
+    [addRow, gridRef, showMessage],
+  )
 
   const handleDeleteRows = useCallback(async () => {
     if (!gridRef?.api) {
@@ -117,26 +145,69 @@ const RowActionsToolbar = () => {
     }
   }, [gridRef, selectedRows, showMessage])
 
+  const handleDuplicateRow = async () => {
+    if (!gridRef?.api) {
+      return
+    }
+
+    const [{ data, rowIndex } = {}] = gridRef.api.getSelectedNodes()
+
+    if (data) {
+      await addRow(data, rowIndex ? rowIndex + 1 : 0)
+    }
+  }
+
+  const menuProps = useMemo(
+    () => ({
+      items: [
+        {
+          icon: <VerticalAlignTopOutlined />,
+          key: 'addTop',
+          label: 'Create row at the top of the grid',
+          onClick: handleAddRow(0) as () => void,
+        },
+      ] as MenuProps['items'],
+    }),
+    [handleAddRow],
+  )
+
   const deleteButtonTitle =
     selectedRows.length > 0 ? `Delete ${selectedRows.length} row(s)` : undefined
+  const duplicateButtonTitle =
+    selectedRows.length === 1 ? 'Duplicate selected row' : undefined
 
   return (
     <Space className="gap-2 px-4 py-3">
-      <Button
-        color="primary"
-        icon={<PlusOutlined />}
-        onClick={handleAddRow}
-        variant="text"
-      >
-        Create
-      </Button>
+      <Space.Compact>
+        <Button
+          color="primary"
+          icon={<PlusOutlined />}
+          onClick={handleAddRow()}
+        >
+          Create
+        </Button>
+        <Dropdown menu={menuProps} placement="bottomRight">
+          <Button icon={<EllipsisOutlined />} iconPlacement="end" />
+        </Dropdown>
+      </Space.Compact>
+
+      <Tooltip title={duplicateButtonTitle}>
+        <Button
+          color="primary"
+          disabled={selectedRows.length !== 1}
+          icon={<CopyOutlined />}
+          onClick={handleDuplicateRow}
+        >
+          Duplicate
+        </Button>
+      </Tooltip>
+
       <Tooltip title={deleteButtonTitle}>
         <Button
           color="primary"
           disabled={selectedRows.length === 0}
           icon={<DeleteOutlined />}
           onClick={handleDeleteRows}
-          variant="text"
         >
           Delete
         </Button>
