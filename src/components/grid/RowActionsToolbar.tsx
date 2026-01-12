@@ -6,9 +6,18 @@ import {
   VerticalAlignTopOutlined,
 } from '@ant-design/icons'
 import { faker } from '@faker-js/faker'
-import { Button, Dropdown, type MenuProps, Space, Tooltip } from 'antd'
+import {
+  Button,
+  Dropdown,
+  Flex,
+  Input,
+  type MenuProps,
+  Space,
+  Tooltip,
+  Typography,
+} from 'antd'
 import { useAtomValue } from 'jotai'
-import { useCallback, useMemo } from 'react'
+import { type FormEvent, useCallback, useMemo, useState } from 'react'
 
 import type { RowDataType } from '../../api/endpoints/rows/types/rowData.types.ts'
 
@@ -17,6 +26,7 @@ import { deleteRow } from '../../api/endpoints/rows/delete.ts'
 import { COLORS_ENUM_VALUES } from '../../constants.ts'
 import { gridRefAtom, selectedRowsAtom } from '../../state/atoms.ts'
 import { useGlobalMessage } from '../notifications/useGlobalMessage.ts'
+const { Text } = Typography
 
 /**
  * Toolbar component for adding and deleting rows.
@@ -26,7 +36,15 @@ const RowActionsToolbar = () => {
   const gridRef = useAtomValue(gridRefAtom)
   const selectedRows = useAtomValue(selectedRowsAtom)
   const showMessage = useGlobalMessage()
+  const [quickSearch, setQuickSearch] = useState<string>('')
 
+  const handleQuickSearchChange = useCallback(
+    (e: FormEvent<HTMLInputElement>) => {
+      setQuickSearch(e.currentTarget.value || '')
+      gridRef?.api.setGridOption('quickFilterText', e.currentTarget.value)
+    },
+    [gridRef?.api],
+  )
   const addRow = useCallback(
     async (rowData: RowDataType, pos?: null | number) => {
       if (!gridRef?.api) {
@@ -177,7 +195,7 @@ const RowActionsToolbar = () => {
     selectedRows.length === 1 ? 'Duplicate selected row' : undefined
 
   return (
-    <Space className="gap-2 px-4 py-3">
+    <Flex align="center" gap={8} style={{ padding: '12px 16px' }}>
       <Space.Compact>
         <Button
           color="primary"
@@ -201,7 +219,6 @@ const RowActionsToolbar = () => {
           Duplicate
         </Button>
       </Tooltip>
-
       <Tooltip title={deleteButtonTitle}>
         <Button
           color="primary"
@@ -212,7 +229,9 @@ const RowActionsToolbar = () => {
           Delete
         </Button>
       </Tooltip>
-    </Space>
+      <Text className="ml-4 whitespace-nowrap">Search</Text>
+      <Input onInput={handleQuickSearchChange} value={quickSearch} />
+    </Flex>
   )
 }
 
