@@ -43,19 +43,6 @@ export const loadableDataAtom = loadable(
  */
 export const selectedRowsAtom = atom<RowDataType[]>([])
 
-export const selectedRowAtom = atom((get) => {
-  const selectedRows = get(selectedRowsAtom)
-
-  if (selectedRows.length === 1) {
-    return selectedRows[0]
-  }
-
-  return null
-})
-
-export const selectedDescriptionAtom = atom((get) => {
-  return get(selectedRowAtom)?.description ?? ''
-})
 /**
  * Atom to hold AG Grid reference (the AgGridReact instance) so other components can use the grid API
  */
