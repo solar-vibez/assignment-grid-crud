@@ -105,7 +105,10 @@ export default tseslint.config(
     ignores: ['**/*.test.*'],
     plugins: { 'barrel-files': barrelFiles },
     rules: {
-      'barrel-files/avoid-namespace-import': 'error',
+      'barrel-files/avoid-namespace-import': [
+        'error',
+        { allowList: ['@testing-library/jest-dom/matchers'] },
+      ],
       'barrel-files/avoid-re-export-all': 'error',
     },
   },

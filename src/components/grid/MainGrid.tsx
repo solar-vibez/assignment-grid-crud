@@ -80,6 +80,7 @@ const MainGrid = ({ columnDefs = [], rowData = [] }: Readonly<Props>) => {
       }}
       className="maingrid"
       columnDefs={columnDefs}
+      data-testid="MainGrid"
       enableBrowserTooltips={true}
       enableFilterHandlers={true}
       getRowId={getRowId}

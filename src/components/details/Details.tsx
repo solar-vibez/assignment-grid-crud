@@ -107,7 +107,9 @@ const Details = () => {
 
   return (
     <>
-      <Title level={3}>{selectedRow?.description}</Title>
+      <Title data-testid="Details.title" level={3}>
+        {selectedRow?.description}
+      </Title>
       <DetailsEditor api={gridRef.api} />
     </>
   )

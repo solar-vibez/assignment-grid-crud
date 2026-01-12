@@ -1,13 +1,8 @@
-import type { ICellRendererParams } from 'ag-grid-community'
-
 import { FlagOutlined } from '@ant-design/icons'
 import { Space, Typography } from 'antd'
 
 import type { ColDefEnumDisplayMode } from '../../../../api/endpoints/column-definitions/types/colDefRendererContext.types.ts'
-import type {
-  ColorFlag,
-  RowDataType,
-} from '../../../../api/endpoints/rows/types/rowData.types.ts'
+import type { ColorFlag } from '../../../../api/endpoints/rows/types/rowData.types.ts'
 
 const { Text } = Typography
 
@@ -31,12 +26,11 @@ const FlagCellRenderer = ({
   displayMode,
   showNullAs,
   value,
-}: Readonly<
-  ICellRendererParams<RowDataType, ColorFlag> & {
-    displayMode: ColDefEnumDisplayMode
-    showNullAs: string
-  }
->) => {
+}: Readonly<{
+  displayMode: ColDefEnumDisplayMode
+  showNullAs: string
+  value: ColorFlag | null
+}>) => {
   if (!value) {
     return showNullAs.length > 0 ? <Text>{showNullAs}</Text> : null
   }
